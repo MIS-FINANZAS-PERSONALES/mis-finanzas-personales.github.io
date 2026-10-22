@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+    <title>Guía de uso</title>
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        body { font-size: 1.1rem; }
+        .guia { max-width: 720px; margin: 0 auto; padding: 1rem; }
+        .guia h1 { font-size: 1.8rem; margin: 1rem 0 0.5rem; }
+        .guia h2 { font-size: 1.35rem; margin: 2rem 0 0.75rem; display: flex; gap: 0.6rem; align-items: center; }
+        .guia .num { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 50%; background: var(--accent); color: #0b0b0b; font-weight: 800; flex-shrink: 0; }
+        .guia ol, .guia ul { padding-left: 1.5rem; }
+        .guia li { margin-bottom: 0.6rem; }
+        .guia .card { margin-top: 0.75rem; }
+        .guia .importante { border-left: 5px solid var(--critical); }
+        .guia strong { font-weight: 700; }
+        @media print {
+            .no-print { display: none; }
+            body { background: #fff; color: #000; }
+            .card { border: 1px solid #999; }
+        }
+    </style>
+</head>
+<body>
+<div class="guia">
+    <p class="no-print"><a class="btn btn-secondary btn-sm" href="./">← Volver a la app</a></p>
+    <h1>Guía de uso — Finanzas Personales</h1>
+    <p class="muted">Para anotar en qué se va la plata, organizar las deudas y ahorrar. Puedes imprimir esta página.</p>
+
+    <div class="card importante">
+        <strong>Lo más importante:</strong>
+        <ol>
+            <li>Anota tu <strong>usuario y contraseña en un papel</strong> y guárdalo en un lugar seguro. Si se olvida la contraseña, <strong>no hay forma de recuperar la información</strong>.</li>
+            <li><strong>Cada semana</strong> descarga un respaldo y envíatelo por correo (paso 5).</li>
+        </ol>
+    </div>
+
+    <h2><span class="num">1</span> Instalar la app en el celular</h2>
+    <div class="card">
+        <strong>Celular Android (Chrome):</strong>
+        <ol>
+            <li>Abre el enlace de la app en <strong>Chrome</strong>.</li>
+            <li>Toca los tres puntos <strong>⋮</strong> arriba a la derecha.</li>
+            <li>Toca <strong>"Instalar aplicación"</strong> o <strong>"Agregar a la pantalla principal"</strong>.</li>
+        </ol>
+    </div>
+    <div class="card">
+        <strong>iPhone (Safari):</strong>
+        <ol>
+            <li>Abre el enlace en <strong>Safari</strong> (no en otro navegador).</li>
+            <li>Toca el botón <strong>Compartir</strong> (el cuadrito con flecha hacia arriba).</li>
+            <li>Toca <strong>"Agregar a pantalla de inicio"</strong>.</li>
+        </ol>
+    </div>
+    <p>Desde ahí, ábrela siempre con el ícono de barras azules. Funciona aunque no haya internet.</p>
+
+    <h2><span class="num">2</span> Crear el usuario</h2>
+    <ol>
+        <li>Toca <strong>"Crear cuenta"</strong>.</li>
+        <li>Escribe un usuario (por ejemplo, tu nombre) y una contraseña de al menos 8 letras o números.</li>
+        <li>Anótalos en el papel.</li>
+    </ol>
+    <p>Cada persona usa su propio celular y su propio usuario. Nadie más ve tu información, ni siquiera quien te instaló la app.</p>
+
+    <h2><span class="num">3</span> Registrar tus cuentas</h2>
+    <p>Toca <strong>"+ Cuenta"</strong> y crea una por cada lugar donde tienes plata o deudas:</p>
+    <ul>
+        <li><strong>Cuenta de ahorros</strong> o <strong>corriente</strong>: escribe el saldo que tienes hoy.</li>
+        <li><strong>Efectivo</strong>: lo que tienes en la billetera o en la casa.</li>
+        <li><strong>Tarjeta de crédito</strong>: escribe lo que debes hoy, la <strong>tasa (% E.A.)</strong>, la <strong>cuota mínima</strong> y el <strong>cupo</strong>. Todo sale en el extracto de la tarjeta.</li>
+        <li><strong>Crédito o préstamo</strong>: lo que debes, la tasa y la cuota mensual.</li>
+    </ul>
+
+    <h2><span class="num">4</span> Anotar los movimientos</h2>
+    <ul>
+        <li><strong>"+ Movimiento"</strong>: cada vez que recibes plata (Ingreso) o gastas (Gasto). Elige la categoría: mercado, servicios, salud, etc.</li>
+        <li>Si pagas con la tarjeta de crédito, elige como cuenta <strong>la tarjeta</strong>.</li>
+        <li>Cuando <strong>pagas la tarjeta</strong>, o pasas plata de una cuenta a otra, usa <strong>"Transferencia / pago de tarjeta"</strong>.</li>
+        <li>Si te equivocas: pestaña <strong>Movimientos</strong> → <strong>Editar</strong> o <strong>Borrar</strong>.</li>
+    </ul>
+    <p>Lo ideal es anotar todo el mismo día. Si no puedes, hazlo una vez por semana con el extracto.</p>
+
+    <h2><span class="num">5</span> Respaldo semanal (¡no lo olvides!)</h2>
+    <ol>
+        <li>Toca <strong>"Respaldo"</strong> → <strong>"Descargar respaldo"</strong>.</li>
+        <li>Se guarda un archivo que empieza con <em>finanzas-respaldo</em>.</li>
+        <li>Envíatelo a tu correo o guárdalo en Google Drive o iCloud.</li>
+    </ol>
+    <p>El archivo va protegido con tu contraseña. Sin ella nadie puede abrirlo.</p>
+
+    <h2><span class="num">6</span> Entender los resultados</h2>
+    <ul>
+        <li><strong>Resumen</strong>: cuánta plata tienes hoy y lo más importante por hacer.</li>
+        <li><strong>Presupuesto</strong>: cuánto puedes gastar en cada cosa al mes. Toca <strong>"Sugerir según mis gastos"</strong> y luego <strong>"Guardar presupuesto"</strong>.</li>
+        <li><strong>Deudas</strong>: en cuánto tiempo terminas de pagar y cuánto te ahorras si abonas un poco más cada mes.</li>
+        <li><strong>Metas</strong>: el fondo para emergencias y lo que quieras ahorrar (un viaje, un arreglo de la casa).</li>
+        <li><strong>Salud financiera</strong>: una nota de 0 a 100 y consejos. Mientras más alta, mejor.</li>
+    </ul>
+
+    <h2><span class="num">7</span> Si cambias de celular</h2>
+    <ol>
+        <li>Instala la app en el celular nuevo (paso 1) y crea un usuario.</li>
+        <li>Toca <strong>"Respaldo"</strong> → en <strong>Restaurar</strong>, elige el último archivo de respaldo.</li>
+        <li>Escribe la contraseña <strong>que tenías cuando hiciste ese respaldo</strong> y toca <strong>"Restaurar"</strong>.</li>
+    </ol>
+
+    <h2>Preguntas frecuentes</h2>
+    <div class="card"><strong>¿Alguien más puede ver mi información?</strong><br>No. Todo queda guardado y cifrado solo en tu celular. La app no envía nada por internet.</div>
+    <div class="card"><strong>¿Qué pasa si borro el historial o los datos del navegador?</strong><br>Se borra la información de la app. Por eso es importante el respaldo semanal.</div>
+    <div class="card"><strong>¿Los consejos son de un asesor?</strong><br>Son recomendaciones generales de finanzas personales. Para decisiones de inversión, consulta a un asesor financiero certificado.</div>
+
+    <p class="no-print" style="margin:2rem 0;"><a class="btn btn-primary" href="./">Abrir la app</a></p>
+</div>
+</body>
+</html>

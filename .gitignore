@@ -1,0 +1,51 @@
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Node (si se usa en futuro)
+node_modules/
+npm-debug.log
+yarn.lock
+package-lock.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Testing
+coverage/
+*.lcov
+
+# Build
+dist/
+build/
+*.min.js
+*.min.css
+
+# Environment
+.env
+.env.local
+
+# Logs
+logs/
+*.log
+
+# Backup
+*.bak
+*.backup
+*~.bak
+
+# Respaldos de la app (contienen datos financieros, aunque cifrados)
+finanzas-respaldo-*.json

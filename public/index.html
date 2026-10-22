@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <!-- Sin conexiones a otros servidores: los datos no pueden salir del dispositivo -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+    <meta name="referrer" content="no-referrer">
+    <meta name="description" content="Finanzas personales privadas: presupuesto, deudas, metas y salud financiera. Tus datos quedan cifrados en tu dispositivo.">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Finanzas">
+    <title>Finanzas Personales</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <div id="app" class="app-container"></div>
+    <noscript><p style="padding:2rem">Esta aplicación necesita JavaScript.</p></noscript>
+    <script src="assets/js/db.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/finance.js"></script>
+    <script src="assets/js/analysis.js"></script>
+    <script src="assets/js/charts.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script src="assets/js/backup.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>

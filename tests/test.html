@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tests — Finanzas Personales</title>
+    <link rel="stylesheet" href="../public/assets/css/styles.css">
+    <style>
+        .test-result { margin: 0.5rem 0; padding: 0.75rem 1rem; border-radius: 4px; }
+        .test-pass { background: rgba(12, 163, 12, 0.12); color: var(--good-ink); }
+        .test-fail { background: rgba(208, 59, 59, 0.12); color: var(--critical-ink); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1>Tests — Finanzas Personales</h1>
+        <p class="muted">Usa una base de datos aparte ("finanzas-test"); no toca tus datos.</p>
+        <div id="test-results"><p>Ejecutando…</p></div>
+    </div>
+
+    <script src="../public/assets/js/db.js"></script>
+    <script src="../public/assets/js/auth.js"></script>
+    <script src="../public/assets/js/finance.js"></script>
+    <script src="../public/assets/js/analysis.js"></script>
+    <script src="../public/assets/js/charts.js"></script>
+    <script src="../public/assets/js/ui.js"></script>
+    <script src="../public/assets/js/backup.js"></script>
+    <script>
+        const igual = (real, esperado, que) => {
+            if (Math.abs(real - esperado) > 0.5) throw new Error(`${que}: esperado ${esperado}, obtenido ${real}`);
+        };
+        const verdad = (cond, que) => { if (!cond) throw new Error(que); };
+        const falla = async (fn, que) => {
+            try { await fn(); } catch (e) { return; }
+            throw new Error(`${que}: debía fallar`);
+        };
+        let n = 0;
+        const usuarioNuevo = async () => {
+            auth.logout();
+            await auth.registro(`test${Date.now()}_${n++}`, 'clave-test-123', 'clave-test-123');
+        };
+        const enDias = d => { const x = new Date(); x.setDate(x.getDate() + d); return fechaLocal(x); };
+
+        class TestRunner {
+            constructor() { this.tests = []; this.results = []; }
+            addTest(name, fn) { this.tests.push({ name, fn }); }
+            async run() {
+                await new Promise(r => { const q = indexedDB.deleteDatabase('finanzas-test'); q.onsuccess = q.onerror = q.onblocked = r; });
+                await fdb.init('finanzas-test');
+                for (const test of this.tests) {
+                    try {
+                        await test.fn();
+                        this.results.push({ name: test.name, pass: true });
+                    } catch (e) {
+                        this.results.push({ name: test.name, pass: false, error: e.message });
+                        console.error('❌', test.name, e);
+                    }
+                }
+                this.render();
+            }
+            render() {
+                const html = this.results.map(r => `
+                    <div class="test-result ${r.pass ? 'test-pass' : 'test-fail'}">
+                        ${r.pass ? '✔' : '✖'} ${esc(r.name)}
+                        ${r.error ? `<br><small>${esc(r.error)}</small>` : ''}
+                    </div>`).join('');
+                const passed = this.results.filter(r => r.pass).length;
+                document.getElementById('test-results').innerHTML = `<h2 id="resumen">${passed}/${this.results.length} tests pasados</h2>` + html;
+                window.testResults = this.results;
+            }
+        }
+
+        const runner = new TestRunner();
+
+        runner.addTest('Derivación PBKDF2', async () => {
+            const key = await fdb.derivaKey('testpassword123', crypto.getRandomValues(new Uint8Array(32)));
+            verdad(key instanceof CryptoKey, 'Key no es CryptoKey');
+        });
+
+        runner.addTest('Registro, login y usuario duplicado', async () => {
+            const u = 'dup' + Date.now();
+            await auth.registro(u, 'password123', 'password123');
+            auth.logout();
+            await auth.login(u, 'password123');
+            await falla(() => auth.login(u, 'otra-clave'), 'Contraseña incorrecta');
+            await falla(() => auth.registro(u, 'password123', 'password123'), 'Usuario duplicado');
+        });
+
+        runner.addTest('Cifrado AES-256-GCM', async () => {
+            await usuarioNuevo();
+            const { iv, encrypted } = await fdb.cifra({ amount: 1000 });
+            igual((await fdb.descifra(iv, encrypted)).amount, 1000, 'Descifrado');
+        });
+
+        runner.addTest('CASO 1: saldo registrado simple', async () => {
+            await usuarioNuevo();
+            const a = await finance.registraCuenta({ nombre: 'A', tipo: 'ahorros', saldo: 1000000 });
+            await finance.registraMovimiento(a, 'income', 500000, 'Sueldo', fechaLocal(), 'salario');
+            await finance.registraMovimiento(a, 'expense', 200000, 'Mercado', fechaLocal(), 'mercado');
+            igual((await finance.saldoRegistrado())[a], 1300000, 'Saldo');
+            igual(await finance.dineroDisponibleHoy(), 1300000, 'Disponible');
+        });
+
+        runner.addTest('CASO 2: transferencia no cambia el total ni es ingreso', async () => {
+            await usuarioNuevo();
+            const a = await finance.registraCuenta({ nombre: 'A', tipo: 'corriente', saldo: 1300000 });
+            const b = await finance.registraCuenta({ nombre: 'B', tipo: 'ahorros', saldo: 0 });
+            await finance.registraTransferencia(a, b, 100000, 'Ahorro');
+            const s = await finance.saldoRegistrado();
+            igual(s[a], 1200000, 'Cuenta A');
+            igual(s[b], 100000, 'Cuenta B');
+            igual(await finance.dineroDisponibleHoy(), 1300000, 'Total');
+            const r = await finance.resumenMes(mesDe(fechaLocal()));
+            igual(r.ingresos, 0, 'Ingresos');
+            igual(r.gastos, 0, 'Gastos');
+        });
+
+        runner.addTest('Tarjeta de crédito: deuda, no dinero disponible', async () => {
+            await usuarioNuevo();
+            const a = await finance.registraCuenta({ nombre: 'Nómina', tipo: 'corriente', saldo: 1000000 });
+            const t = await finance.registraCuenta({ nombre: 'Visa', tipo: 'tarjeta', saldo: 200000, tasaEA: 28, cuotaMinima: 50000, cupo: 1000000 });
+            igual(await finance.dineroDisponibleHoy(), 1000000, 'La deuda no suma a disponible');
+            await finance.registraMovimiento(t, 'expense', 300000, 'Compra', fechaLocal(), 'compras');
+            igual(await finance.dineroDisponibleHoy(), 1000000, 'Compra con tarjeta no baja disponible');
+            igual((await finance.patrimonio()).neto, 500000, 'Patrimonio = 1.000.000 - 500.000');
+            await finance.registraTransferencia(a, t, 500000, 'Pago Visa');
+            igual(await finance.dineroDisponibleHoy(), 500000, 'Pago de tarjeta sí baja disponible');
+            igual((await finance.saldoRegistrado())[t], 0, 'Tarjeta en cero');
+            const ind = await analysis.indicadores();
+            igual(ind.utilizacion, 0, 'Uso de cupo');
+        });
+
+        runner.addTest('CASO 5: obligación con pagos parciales (un solo registro)', async () => {
+            await usuarioNuevo();
+            const a = await finance.registraCuenta({ nombre: 'A', tipo: 'corriente', saldo: 2000000 });
+            const o = await finance.registraObligacion('Matrícula', 1000000, enDias(10), '', 'educacion');
+            await finance.pagaObligacion(o, 400000, a);
+            let obs = await fdb.lista('obligations');
+            igual(obs.length, 1, 'Cantidad de obligaciones');
+            verdad(obs[0].status === 'partially_paid', 'Estado parcial');
+            igual(obs[0].amountPending, 600000, 'Pendiente');
+            await finance.pagaObligacion(o, 600000, a);
+            obs = await fdb.lista('obligations');
+            verdad(obs[0].status === 'fully_paid', 'Estado pagada');
+            igual(await finance.dineroDisponibleHoy(), 1000000, 'Disponible tras pagos');
+            // Borrar un pago devuelve la obligación a pendiente
+            const pago = (await fdb.lista('transactions'))[1];
+            await finance.borraMovimiento(pago.id);
+            obs = await fdb.lista('obligations');
+            verdad(obs[0].status === 'partially_paid', 'Revertida a parcial');
+            igual(obs[0].amountPending, 600000, 'Pendiente tras revertir');
+            await falla(() => finance.pagaObligacion(o, 700000, a), 'Pago mayor al pendiente');
+        });
+
+        runner.addTest('CASO 6: movimiento futuro solo en la proyección', async () => {
+            await usuarioNuevo();
+            const a = await finance.registraCuenta({ nombre: 'A', tipo: 'corriente', saldo: 950000 });
+            await finance.registraMovimiento(a, 'income', 800000, 'Prima', enDias(10), 'primas');
+            await finance.registraObligacion('Impuesto', 300000, enDias(15), '', 'impuestos');
+            igual(await finance.dineroDisponibleHoy(), 950000, 'Disponible no incluye futuro');
+            igual(await finance.dineroProyectado(30), 1450000, 'Proyección 950.000 + 800.000 - 300.000');
+        });
+
+        runner.addTest('Editar movimiento lo actualiza en su lugar', async () => {
+            await usuarioNuevo();
+            const a = await finance.registraCuenta({ nombre: 'A', tipo: 'corriente', saldo: 0 });
+            const id = await finance.registraMovimiento(a, 'income', 100000, 'X', fechaLocal(), 'salario');
+            await finance.actualizaMovimiento(id, { amount: 250000 });
+            const ts = await fdb.lista('transactions');
+            igual(ts.length, 1, 'Cantidad');
+            igual(ts[0].amount, 250000, 'Monto editado');
+            await falla(() => finance.registraMovimiento(a, 'expense', 0, 'cero'), 'Monto 0');
+        });
+
+        runner.addTest('Plan de deudas: casos conocidos', async () => {
+            const sinInteres = analysis.planDeudas([{ nombre: 'D', saldo: 1000000, tasaEA: 0, cuotaMinima: 100000 }]);
+            igual(sinInteres.meses, 10, 'Meses sin interés');
+            igual(sinInteres.intereses, 0, 'Intereses sin tasa');
+            const imposible = analysis.planDeudas([{ nombre: 'D', saldo: 5000000, tasaEA: 40, cuotaMinima: 100000 }]);
+            verdad(imposible.imposible, 'Cuota menor que intereses debe ser imposible');
+            const ds = [{ nombre: 'Pequeña 12%', saldo: 1000000, tasaEA: 12, cuotaMinima: 50000 }, { nombre: 'Grande 32%', saldo: 6000000, tasaEA: 32, cuotaMinima: 200000 }];
+            const av = analysis.planDeudas(ds, 200000, 'avalancha');
+            const bola = analysis.planDeudas(ds, 200000, 'bola');
+            const min = analysis.planDeudas(ds, 0, 'avalancha', false);
+            verdad(av.intereses < bola.intereses, 'Avalancha paga menos intereses');
+            verdad(bola.orden[0].nombre === 'Pequeña 12%', 'Bola de nieve empieza por la menor');
+            verdad(av.intereses < min.intereses && av.meses < min.meses, 'Pago extra mejora frente a mínimos');
+        });
+
+        runner.addTest('Indicadores, puntaje y presupuesto sugerido', async () => {
+            await usuarioNuevo();
+            const a = await finance.registraCuenta({ nombre: 'A', tipo: 'corriente', saldo: 3000000 });
+            const mes = sumaMeses(mesDe(fechaLocal()), -1) + '-05';
+            await finance.registraMovimiento(a, 'income', 4000000, '', mes, 'salario');
+            await finance.registraMovimiento(a, 'expense', 2400000, '', mes, 'vivienda');
+            await finance.registraMovimiento(a, 'expense', 1000000, '', mes, 'restaurantes');
+            const ind = await analysis.indicadores();
+            igual(ind.tasaAhorro * 100, 15, 'Tasa de ahorro');
+            igual(ind.pctNecesidades * 100, 60, 'Necesidades');
+            const { sugerido } = await analysis.sugerirPresupuesto();
+            igual(sugerido.vivienda, 2400000, 'Necesidades se mantienen');
+            igual(sugerido.restaurantes, 800000, 'Deseos hasta ahorro 20 %: 4.000.000*0,8 - 2.400.000');
+            const p = analysis.puntaje(ind);
+            verdad(p.total >= 0 && p.total <= 100, 'Puntaje en rango');
+        });
+
+        runner.addTest('Respaldo cifrado: ida y vuelta con contraseña', async () => {
+            await usuarioNuevo();
+            const a = await finance.registraCuenta({ nombre: 'CuentaSecreta', tipo: 'ahorros', saldo: 777000 });
+            const o = await finance.registraObligacion('ObligSecreta', 100000, enDias(5), '', 'otros');
+            await finance.pagaObligacion(o, 40000, a);
+            await finance.guardaPresupuesto('mercado', 500000);
+            await finance.registraMeta('MetaSecreta', 1000000, enDias(200), 100000);
+            let blob;
+            const orig = URL.createObjectURL, clickOrig = HTMLAnchorElement.prototype.click;
+            URL.createObjectURL = b => { blob = b; return 'blob:x'; };
+            HTMLAnchorElement.prototype.click = function () {};
+            try { await backup.descargarRespaldo(); } finally { URL.createObjectURL = orig; HTMLAnchorElement.prototype.click = clickOrig; }
+            const txt = await blob.text();
+            verdad(!/Secreta|777000/.test(txt), 'El respaldo contiene texto plano');
+
+            await usuarioNuevo();
+            const f = new File([txt], 'r.json');
+            await falla(() => backup.restaurarRespaldo([f], 'clave-mala'), 'Contraseña incorrecta');
+            await backup.restaurarRespaldo([f], 'clave-test-123');
+            igual(await finance.dineroDisponibleHoy(), 737000, 'Disponible restaurado');
+            igual((await finance.presupuestos()).mercado.monto, 500000, 'Presupuesto restaurado');
+            igual((await finance.metas()).length, 1, 'Meta restaurada');
+            const pago = (await fdb.lista('transactions')).find(t => t.obligationId);
+            const obl = await fdb.obten('obligations', pago.obligationId);
+            verdad(obl && obl.nombre === 'ObligSecreta', 'El pago apunta a la obligación restaurada');
+        });
+
+        runner.addTest('Logout limpia la clave', async () => {
+            auth.logout();
+            verdad(fdb.key === null && fdb.userId === null, 'Clave no se limpió');
+        });
+
+        window.addEventListener('DOMContentLoaded', () => runner.run());
+    </script>
+</body>
+</html>

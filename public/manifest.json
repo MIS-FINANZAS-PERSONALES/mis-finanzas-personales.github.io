@@ -1,0 +1,19 @@
+{
+  "name": "Finanzas Personales",
+  "short_name": "Finanzas",
+  "description": "Presupuesto, deudas, metas y salud financiera. Tus datos quedan cifrados en tu dispositivo.",
+  "lang": "es-CO",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "categories": ["finance", "productivity"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
