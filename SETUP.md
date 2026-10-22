@@ -58,7 +58,7 @@ Etapa 7: ✅ Testing y deployment
 
 ```bash
 # En tu terminal
-git clone https://github.com/TUUSER/finanzas-personales.git
+git clone https://github.com/MIS-FINANZAS-PERSONALES/mis-finanzas-personales.github.io.git
 cd finanzas-personales
 
 # Copia los archivos generados a esta carpeta
@@ -83,7 +83,7 @@ En GitHub.com → Tu repositorio → Settings → Pages
 
 Después de 1-2 minutos:
 ```
-https://TUUSER.github.io/finanzas-personales
+https://mis-finanzas-personales.github.io/
 ```
 
 ---

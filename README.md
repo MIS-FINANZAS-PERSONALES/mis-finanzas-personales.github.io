@@ -1,17 +1,19 @@
 # Finanzas Personales Privadas
 
+**App:** https://mis-finanzas-personales.github.io/
+
 PWA local-first para gestión de finanzas personales. Todo los datos permanecen en tu dispositivo.
 
 ## Instalación rápida
 
 ### GitHub Pages
 ```bash
-git clone https://github.com/tuuser/finanzas-personales.git
-cd finanzas-personales
+git clone https://github.com/MIS-FINANZAS-PERSONALES/mis-finanzas-personales.github.io.git
+cd mis-finanzas-personales.github.io
 git push origin main
 ```
 
-Accede a: `https://tuuser.github.io/finanzas-personales`
+Accede a: `https://mis-finanzas-personales.github.io/`
 
 ### Instalación local
 ```bash

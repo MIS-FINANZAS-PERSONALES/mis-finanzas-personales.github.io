@@ -10,7 +10,7 @@ git init
 git add .
 git commit -m "Initial commit"
 git branch -M main
-# Luego: git remote add origin https://github.com/tuuser/finanzas-personales.git
+# Luego: git remote add origin https://github.com/MIS-FINANZAS-PERSONALES/mis-finanzas-personales.github.io.git
 # git push -u origin main
 ```
 
@@ -54,7 +54,7 @@ En tu repositorio:
 
 Espera 1 minuto.
 
-Tu app está en: `https://tuuser.github.io/finanzas-personales`
+Tu app está en: `https://mis-finanzas-personales.github.io/`
 
 ---
 

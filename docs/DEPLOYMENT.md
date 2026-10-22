@@ -10,7 +10,7 @@
 # Público: SÍ (para que funcione GitHub Pages)
 
 # 2. Clona el repositorio
-git clone https://github.com/tuuser/finanzas-personales.git
+git clone https://github.com/MIS-FINANZAS-PERSONALES/mis-finanzas-personales.github.io.git
 cd finanzas-personales
 
 # 3. Copia los archivos
@@ -42,7 +42,7 @@ git push origin main
 ### Acceso
 
 ```
-https://tuuser.github.io/finanzas-personales
+https://mis-finanzas-personales.github.io/
 ```
 
 ### Actualización
@@ -154,7 +154,7 @@ indexedDB.deleteDatabase('finanzas');
 ## Monitoreo
 
 GitHub Pages:
-- Stats: https://github.com/tuuser/finanzas-personales
+- Stats: https://github.com/MIS-FINANZAS-PERSONALES/mis-finanzas-personales.github.io
 - Build logs: Actions tab
 - Uptime: Siempre en línea (GitHub)
 
